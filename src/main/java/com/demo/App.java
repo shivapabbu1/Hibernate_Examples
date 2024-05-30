@@ -10,7 +10,7 @@ public class App {
    
     	public static void main(String[] args) {
     		StudentDAO studentDao = new StudentDAO();
-    		Student student = new Student("shiva", "pabbu", "shivapabbu@net.com");
+    		Student student = new Student("kiran", "kommu", "kirankommu@net.com");
     		studentDao.saveStudent(student);
     		
     		List<Student> students = studentDao.getStudents();

@@ -10,6 +10,7 @@ import com.demo.util.HibernateUtil;
 
 
 public class StudentDAO {
+	
 	public void saveStudent(Student student) {
 		Transaction transaction = null;
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -27,6 +28,7 @@ public class StudentDAO {
 		}
 	}
 
+	
 	public List<Student> getStudents() {
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 			return session.createQuery("from Student", Student.class).list();
