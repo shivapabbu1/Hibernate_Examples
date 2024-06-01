@@ -1,22 +1,35 @@
 package com.demo;
 
-import com.demo.entity.Student;
-import com.demo.util.JPAUtil;
+
+
+
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
+import com.demo.entity.FullTimeEmployee;
+import com.demo.entity.PartTimeEmployee;
+import com.demo.util.HibernateUtil;
 
 import jakarta.persistence.EntityManager;
 
 public class App {
     public static void main(String[] args){
+    	 Session session = HibernateUtil.getSessionFactory().openSession();
+         Transaction transaction = session.beginTransaction();
 
-        EntityManager entityManager = JPAUtil.getEntityManagerFactory().createEntityManager();
-        entityManager.getTransaction().begin();
+         FullTimeEmployee fullTimeEmployee = new FullTimeEmployee();
+         fullTimeEmployee.setName("John Doe");
+         fullTimeEmployee.setSalary(50000);
 
-        Student student = new Student("pabbu", "shivaa", "pabbuhiva@javaguides.com");
-        entityManager.persist(student);
-        entityManager.getTransaction().commit();
-        entityManager.close();
+         PartTimeEmployee partTimeEmployee = new PartTimeEmployee();
+         partTimeEmployee.setName("Jane Doe");
+         partTimeEmployee.setHourlyRate(30);
 
-        JPAUtil.shutdown();
-    }
+         session.save(fullTimeEmployee);
+         session.save(partTimeEmployee);
+
+         transaction.commit();
+         session.close();
+     }
 
 }
