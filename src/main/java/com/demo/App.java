@@ -1,6 +1,8 @@
 package com.demo;
 
 import com.demo.entity.Employee;
+import com.demo.entity.ProductInterceptor;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -8,9 +10,9 @@ import org.hibernate.cfg.Configuration;
 
 public class App {
     public static void main(String[] args) {
-        // Create Hibernate configuration
-        Configuration configuration = new Configuration().configure();
+    	Configuration configuration = new Configuration().configure();
         configuration.addAnnotatedClass(Employee.class);
+        configuration.setInterceptor(new ProductInterceptor());
 
         // Build the session factory
         SessionFactory sessionFactory = configuration.buildSessionFactory();
@@ -19,22 +21,36 @@ public class App {
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
 
-        // Batch insertion of Employees
-        for (int i = 1; i <= 10; i++) {
-            Employee employee = new Employee();
-            employee.setName("Employee " + i);
-            employee.setDepartment("Department " + (i % 10));
-            session.save(employee);
+        // Save data
+        Employee employee1 = new Employee();
+        employee1.setName("Employee 1");
+        employee1.setDepartment("Department A");
+        session.save(employee1);
 
-            // Batch size is 20, so flush and clear the session every 20 inserts
-            if (i % 2 == 0) {
-                session.flush();
-                session.clear();
-            }
-        }
+        Employee employee2 = new Employee();
+        employee2.setName("Employee 2");
+        employee2.setDepartment("Department B");
+        session.save(employee2);
 
         transaction.commit();
         session.close();
+
+        // Open a new session for update and delete
+        session = sessionFactory.openSession();
+        transaction = session.beginTransaction();
+
+        // Update data
+        Employee employeeToUpdate = session.get(Employee.class, employee1.getId());
+        employeeToUpdate.setName("Updated Employee 1");
+        session.update(employeeToUpdate);
+
+        // Delete data
+        Employee employeeToDelete = session.get(Employee.class, employee2.getId());
+        session.delete(employeeToDelete);
+
+        transaction.commit();
+        session.close();
+
         sessionFactory.close();
     }
 }
