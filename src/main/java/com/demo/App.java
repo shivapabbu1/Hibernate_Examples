@@ -1,70 +1,54 @@
 package com.demo;
 
+import com.demo.entity.Department;
 import com.demo.entity.Employee;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.query.NativeQuery;
-
-import java.util.List;
 
 public class App {
     public static void main(String[] args) {
-    	// Create Hibernate configuration
+        // Create Hibernate configuration
         Configuration configuration = new Configuration().configure();
+        configuration.addAnnotatedClass(Employee.class);
+        configuration.addAnnotatedClass(Department.class);
 
         // Build the session factory
         SessionFactory sessionFactory = configuration.buildSessionFactory();
 
         // Open a new session
         Session session = sessionFactory.openSession();
-
-        // Begin a transaction
         Transaction transaction = session.beginTransaction();
-        
-        Employee employee0 = new Employee();
-        employee0.setName("John Doe");
-        employee0.setDepartment("IT");
-        
-        Employee employee1 = new Employee();
-        employee1.setName("John ");
-        employee1.setDepartment("HR");
-        
-        Employee employee2 = new Employee();
-        employee2.setName(" Doe");
-        employee2.setDepartment("Admin");
-        
-        
-        session.save(employee0);
-        session.save(employee1);
-        session.save(employee2);
 
-     // Open a new session and load the employee
-        Session session2 = sessionFactory.openSession();
-        session2.beginTransaction();
-        
+        // Create and save Department
+        Department department = new Department();
+        department.setName("HR");
+        session.save(department);
 
-        // First time loading, should hit the database
-        Employee emp1 = session2.get(Employee.class, employee0.getId());
-      
+        // Create and save Employee
+        Employee employee = new Employee();
+        employee.setName("John Doe");
+        employee.setDepartment(department);
+        session.save(employee);
 
-        session2.getTransaction().commit();
-        session2.close();
+        transaction.commit();
+        session.close();
 
-        // Open another new session and load the employee again
-        Session session3 = sessionFactory.openSession();
-        session3.beginTransaction();
-        
+        // Fetching Employee
+        Session newSession = sessionFactory.openSession();
+        System.out.println("Fetching Employee...");
+        Employee fetchedEmployee = newSession.get(Employee.class, employee.getId());
+        System.out.println("Employee fetched.");
 
-        // This time should be loaded from the second-level cache
-        Employee emp2 = session3.get(Employee.class, employee0.getId());
-      
+        // Accessing Employee's name
+        System.out.println("Employee Name: " + fetchedEmployee.getName());
 
-        session3.getTransaction().commit();
-        session3.close();
+        // Accessing Employee's Department
+        System.out.println("Accessing Employee's Department...");
+        System.out.println("Department Name: " + fetchedEmployee.getDepartment().getName()); // Triggers lazy loading
 
-        // Close the session factory
+        newSession.close();
         sessionFactory.close();
     }
 }
