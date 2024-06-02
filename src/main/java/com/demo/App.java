@@ -1,6 +1,5 @@
 package com.demo;
 
-import com.demo.entity.Department;
 import com.demo.entity.Employee;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -12,43 +11,39 @@ public class App {
         // Create Hibernate configuration
         Configuration configuration = new Configuration().configure();
         configuration.addAnnotatedClass(Employee.class);
-        configuration.addAnnotatedClass(Department.class);
 
         // Build the session factory
         SessionFactory sessionFactory = configuration.buildSessionFactory();
 
-        // Open a new session
+        // Open a new session and save an Employee
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
 
-        // Create and save Department
-        Department department = new Department();
-        department.setName("HR");
-        session.save(department);
-
-        // Create and save Employee
         Employee employee = new Employee();
         employee.setName("John Doe");
-        employee.setDepartment(department);
+        employee.setDepartment("IT");
         session.save(employee);
 
         transaction.commit();
         session.close();
 
-        // Fetching Employee
+        // Open another session to demonstrate dirty checking
         Session newSession = sessionFactory.openSession();
-        System.out.println("Fetching Employee...");
+        Transaction newTransaction = newSession.beginTransaction();
+
+        // Fetch the Employee
         Employee fetchedEmployee = newSession.get(Employee.class, employee.getId());
-        System.out.println("Employee fetched.");
+        System.out.println("Fetched Employee: " + fetchedEmployee.getName() + ", Department: " + fetchedEmployee.getDepartment());
 
-        // Accessing Employee's name
-        System.out.println("Employee Name: " + fetchedEmployee.getName());
+        // Modify the Employee's department
+        fetchedEmployee.setDepartment("HR");
 
-        // Accessing Employee's Department
-        System.out.println("Accessing Employee's Department...");
-        System.out.println("Department Name: " + fetchedEmployee.getDepartment().getName()); // Triggers lazy loading
+        // No explicit call to update() is required
+        System.out.println("Modified Employee Department to: " + fetchedEmployee.getDepartment());
 
+        newTransaction.commit();
         newSession.close();
+
         sessionFactory.close();
     }
 }
