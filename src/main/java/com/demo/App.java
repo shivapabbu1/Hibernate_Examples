@@ -15,35 +15,26 @@ public class App {
         // Build the session factory
         SessionFactory sessionFactory = configuration.buildSessionFactory();
 
-        // Open a new session and save an Employee
+        // Open a new session
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
 
-        Employee employee = new Employee();
-        employee.setName("John Doe");
-        employee.setDepartment("IT");
-        session.save(employee);
+        // Batch insertion of Employees
+        for (int i = 1; i <= 10; i++) {
+            Employee employee = new Employee();
+            employee.setName("Employee " + i);
+            employee.setDepartment("Department " + (i % 10));
+            session.save(employee);
+
+            // Batch size is 20, so flush and clear the session every 20 inserts
+            if (i % 2 == 0) {
+                session.flush();
+                session.clear();
+            }
+        }
 
         transaction.commit();
         session.close();
-
-        // Open another session to demonstrate dirty checking
-        Session newSession = sessionFactory.openSession();
-        Transaction newTransaction = newSession.beginTransaction();
-
-        // Fetch the Employee
-        Employee fetchedEmployee = newSession.get(Employee.class, employee.getId());
-        System.out.println("Fetched Employee: " + fetchedEmployee.getName() + ", Department: " + fetchedEmployee.getDepartment());
-
-        // Modify the Employee's department
-        fetchedEmployee.setDepartment("HR");
-
-        // No explicit call to update() is required
-        System.out.println("Modified Employee Department to: " + fetchedEmployee.getDepartment());
-
-        newTransaction.commit();
-        newSession.close();
-
         sessionFactory.close();
     }
 }
