@@ -40,20 +40,29 @@ public class App {
         session.save(employee1);
         session.save(employee2);
 
-        // Load an employee with ID 1
-        Long employeeId = 1L;
-        System.out.println("Loading Employee with ID: " + employeeId);
-        Employee emp1 = session.get(Employee.class, employeeId);
+     // Open a new session and load the employee
+        Session session2 = sessionFactory.openSession();
+        session2.beginTransaction();
+        
 
-        // Load the same employee again in the same session
-        System.out.println("Loading the same Employee again");
-        Employee emp2 = session.get(Employee.class, employeeId);
+        // First time loading, should hit the database
+        Employee emp1 = session2.get(Employee.class, employee0.getId());
+      
 
-        // Commit the transaction
-        transaction.commit();
+        session2.getTransaction().commit();
+        session2.close();
 
-        // Close the session
-        session.close();
+        // Open another new session and load the employee again
+        Session session3 = sessionFactory.openSession();
+        session3.beginTransaction();
+        
+
+        // This time should be loaded from the second-level cache
+        Employee emp2 = session3.get(Employee.class, employee0.getId());
+      
+
+        session3.getTransaction().commit();
+        session3.close();
 
         // Close the session factory
         sessionFactory.close();

@@ -10,6 +10,18 @@
         <property name="hibernate.hbm2ddl.auto">create</property>
         <property name="hibernate.show_sql">true</property>
         
+         <!-- Enable second-level cache -->
+        <property name="hibernate.cache.use_second_level_cache">true</property>
+        <property name="hibernate.cache.region.factory_class">org.hibernate.cache.jcache.JCacheRegionFactory</property>
+        
+        <!-- Enable query cache -->
+        <property name="hibernate.cache.use_query_cache">true</property>
+
+        <!-- Configure Ehcache configuration file -->
+        <property name="hibernate.javax.cache.uri">/ehcache.xml</property>
+        
+        
+        
         <mapping class="com.demo.entity.Employee"/>
      
        
