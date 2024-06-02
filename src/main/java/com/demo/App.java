@@ -20,27 +20,34 @@ public class App {
 
         
 
-        Employee employee = new Employee();
-        employee.setName("John Doe");
-        employee.setDepartment("IT");
+        Employee employee0 = new Employee();
+        employee0.setName("John Doe");
+        employee0.setDepartment("IT");
+        
+        Employee employee1 = new Employee();
+        employee1.setName("John ");
+        employee1.setDepartment("HR");
+        
+        Employee employee2 = new Employee();
+        employee2.setName(" Doe");
+        employee2.setDepartment("Admin");
         
         
-        session.save(employee);
+        session.save(employee0);
+        session.save(employee1);
+        session.save(employee2);
         
+        
+        Long empId = 2L; // Example employee ID
+        List<Employee> employees = session.createNamedQuery("findEmployeeById", Employee.class)
+                                      .setParameter("empId", empId)
+                                      .getResultList();
 
-        // Execute native SQL query
-        String sql = "SELECT * FROM Employee WHERE department = :dept";
-        NativeQuery<Employee> query = session.createNativeQuery(sql, Employee.class);
-        query.setParameter("dept", "IT");
-
-        // Get the result list
-        List<Employee> employees = query.list();
-
-        // Printing retrieved employees
-        for (Employee emp : employees) {
-            System.out.println("ID: " + emp.getId() + ", Name: " + emp.getName() + ", Department: " + emp.getDepartment());
+        for (Employee employee : employees) {
+            System.out.println("ID: " + employee.getId() + ", Name: " + employee.getName() + ", Department: " + employee.getDepartment());
         }
 
+      
         // Commit transaction and close session
         session.getTransaction().commit();
         session.close();
