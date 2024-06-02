@@ -1,23 +1,15 @@
 package com.demo.entity;
 
-import jakarta.persistence.Embedded;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.NamedNativeQuery;
-import jakarta.persistence.NamedQuery;
+
 
 @Entity
-@NamedNativeQuery(
-	    name = "findEmployeeById",
-	    query = "SELECT * FROM Employee WHERE id = :empId",
-	    resultClass = Employee.class
-	)
-@NamedQuery(
-	    name = "findEmployeeByName",
-	    query = "SELECT e FROM Employee e WHERE e.name = :name"
-	)
+
+
 public class Employee {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

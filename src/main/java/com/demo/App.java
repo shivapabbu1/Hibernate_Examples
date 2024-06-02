@@ -3,6 +3,7 @@ package com.demo;
 import com.demo.entity.Employee;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.NativeQuery;
 
@@ -10,16 +11,18 @@ import java.util.List;
 
 public class App {
     public static void main(String[] args) {
-        // Initialize Hibernate SessionFactory
+    	// Create Hibernate configuration
         Configuration configuration = new Configuration().configure();
+
+        // Build the session factory
         SessionFactory sessionFactory = configuration.buildSessionFactory();
 
-        // Open session
+        // Open a new session
         Session session = sessionFactory.openSession();
-        session.beginTransaction();
 
+        // Begin a transaction
+        Transaction transaction = session.beginTransaction();
         
-
         Employee employee0 = new Employee();
         employee0.setName("John Doe");
         employee0.setDepartment("IT");
@@ -36,21 +39,23 @@ public class App {
         session.save(employee0);
         session.save(employee1);
         session.save(employee2);
-        
-        
-        Long empId = 2L; // Example employee ID
-        List<Employee> employees = session.createNamedQuery("findEmployeeById", Employee.class)
-                                      .setParameter("empId", empId)
-                                      .getResultList();
 
-        for (Employee employee : employees) {
-            System.out.println("ID: " + employee.getId() + ", Name: " + employee.getName() + ", Department: " + employee.getDepartment());
-        }
+        // Load an employee with ID 1
+        Long employeeId = 1L;
+        System.out.println("Loading Employee with ID: " + employeeId);
+        Employee emp1 = session.get(Employee.class, employeeId);
 
-      
-        // Commit transaction and close session
-        session.getTransaction().commit();
+        // Load the same employee again in the same session
+        System.out.println("Loading the same Employee again");
+        Employee emp2 = session.get(Employee.class, employeeId);
+
+        // Commit the transaction
+        transaction.commit();
+
+        // Close the session
         session.close();
+
+        // Close the session factory
         sessionFactory.close();
     }
 }
