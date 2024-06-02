@@ -1,63 +1,65 @@
 package com.demo;
 
-import com.demo.entity.Address;
-import com.demo.entity.Employee;
-import com.demo.util.HibernateUtil;
+
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
+import com.demo.entity.Department;
+import com.demo.entity.Employee;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+
 import java.util.List;
+
+
+
+
+
 
 public class App {
     public static void main(String[] args) {
-    	
-    	Configuration configuration = new Configuration().configure();
-       
-        SessionFactory sessionFactory = configuration.buildSessionFactory();
-        
-//        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();  // 
+        // Create EntityManagerFactory and EntityManager
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("myPersistenceUnit");
+        EntityManager em = emf.createEntityManager();
 
-        // Open session
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
+        // Start transaction
+        em.getTransaction().begin();
 
-        // Create and save employee
-        Address address = new Address();
-        address.setStreet("123 Main St");
-        address.setCity("Springfield");
-        address.setState("IL");
-        address.setZipCode("62704");
+        // Create and save a department
+        Department dept = new Department();
+        dept.setName("Developer");
+        em.persist(dept);
 
+        // Create and save an employee
         Employee employee = new Employee();
         employee.setName("John Doe");
-        employee.setDepartment("IT");
-        employee.setAddress(address);
+        employee.setDepartment(dept);
+        em.persist(employee);
 
-        session.save(employee);
-        session.getTransaction().commit();
+        // Commit transaction
+        em.getTransaction().commit();
 
-        // Open new session for querying
-        session = sessionFactory.openSession();
-        session.beginTransaction();
+        // Start a new transaction for querying
+        em.getTransaction().begin();
 
-        // Writing HQL to retrieve employees by department
-        String hql = "FROM Employee WHERE department = :dept";
-        List<Employee> employees = session.createQuery(hql, Employee.class)
-                .setParameter("dept", "IT")
-                .list();
+        // Writing JPQL to retrieve employees by department
+        String jpql = "SELECT e FROM Employee e WHERE e.department.name = :deptName";
+        List<Employee> employees = em.createQuery(jpql, Employee.class)
+                                     .setParameter("deptName", "Developer")
+                                     .getResultList();
 
         // Printing retrieved employees
         for (Employee emp : employees) {
-            System.out.println("ID: " + emp.getId() + ", Name: " + emp.getName() + ", Department: " + emp.getDepartment());
+            System.out.println("ID: " + emp.getId() + ", Name: " + emp.getName() + ", Department: " + emp.getDepartment().getName());
         }
 
-        // Commit transaction and close session
-         
-       
-        session.getTransaction().commit();
-          
-        session.close();
-        sessionFactory.close();	
+        // Commit transaction and close EntityManager
+        em.getTransaction().commit();
+        em.close();
+        emf.close();
     }
 }
