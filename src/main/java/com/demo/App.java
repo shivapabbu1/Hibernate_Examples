@@ -14,48 +14,49 @@ public class App {
     	// Create Hibernate configuration
         Configuration configuration = new Configuration().configure();
 
-        // Build the session factory
         SessionFactory sessionFactory = configuration.buildSessionFactory();
 
-        // Open a new session
         Session session = sessionFactory.openSession();
 
-        // Begin a transaction
         Transaction transaction = session.beginTransaction();
-        
-        Employee employee0 = new Employee();
-        employee0.setName("John Doe");
-        employee0.setDepartment("IT");
-        
-        Employee employee1 = new Employee();
-        employee1.setName("John ");
-        employee1.setDepartment("HR");
-        
-        Employee employee2 = new Employee();
-        employee2.setName(" Doe");
-        employee2.setDepartment("Admin");
-        
-        
-        session.save(employee0);
-        session.save(employee1);
-        session.save(employee2);
 
-        // Load an employee with ID 1
-        Long employeeId = 1L;
-        System.out.println("Loading Employee with ID: " + employeeId);
-        Employee emp1 = session.get(Employee.class, employeeId);
+                    Employee employee0 = new Employee();
+                    employee0.setName("John Doe");
+                    employee0.setDepartment("IT");
 
-        // Load the same employee again in the same session
-        System.out.println("Loading the same Employee again");
-        Employee emp2 = session.get(Employee.class, employeeId);
+                    Employee employee1 = new Employee();
+                    employee1.setName("John ");
+                    employee1.setDepartment("HR");
 
-        // Commit the transaction
-        transaction.commit();
+                    Employee employee2 = new Employee();
+                    employee2.setName(" Doe");
+                    employee2.setDepartment("Admin");
 
-        // Close the session
-        session.close();
+                    session.save(employee0);
+                    session.save(employee1);
+                    session.save(employee2);
 
-        // Close the session factory
-        sessionFactory.close();
-    }
-}
+                    List<Long> totalEmps = session.createNamedQuery("GET_EMP_COUNT", Long.class).getResultList();
+                    System.out.println("Total Employees: " + totalEmps.get(0));
+
+                    Employee employee = session.createNamedQuery("GET_EMPLOYEE_BY_ID", Employee.class)
+                                                .setParameter("id", 1)
+                                                .getSingleResult();
+
+                    System.out.println("Employee Name: " + employee.getName());
+
+                    List<Employee> emps = session.createNamedQuery("GET_ALL_EMPLOYEES", Employee.class).getResultList();
+                    for (Employee emp : emps) {
+                        System.out.println("ID: " + emp.getId() + "\tName: " + emp.getName());
+                    }
+
+                    // Commit the transaction
+                    transaction.commit();
+
+                    // Close the session
+                    session.close();
+
+                    // Close the session factory
+                    sessionFactory.close();
+                }
+            }

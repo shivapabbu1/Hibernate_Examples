@@ -5,6 +5,18 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+
+
+
+
+
+@NamedQuery(name = "GET_EMP_COUNT", query = "select count(1) from EMPLOYEE")
+
+//Using @NamedQueries for multiple JPQL or HQL
+@NamedQueries({ @NamedQuery(name = "GET_EMP_BY_ID", query = "from Employee where id=:id"),
+		@NamedQuery(name = "GET_ALL_EMPS", query = "from Employee") })
 
 
 @Entity
