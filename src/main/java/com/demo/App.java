@@ -2,6 +2,7 @@ package com.demo;
 
 import com.demo.entity.Employee;
 
+import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -32,51 +33,43 @@ public class App {
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
 
-        // Create new employees
-        Employee newEmployee = new Employee();
-        newEmployee.setName("Employee 1");
-        newEmployee.setDepartment("Department A");
-        session.saveOrUpdate(newEmployee);
+     // Create new employees
+        Employee emp1 = new Employee();
+        emp1.setName("John Doe");
+        emp1.setDepartment("HR");
+        emp1.setActive(true);
+        session.save(emp1);
 
-        Employee existingEmployee = new Employee();
-        existingEmployee.setName("Employee 2");
-        existingEmployee.setDepartment("Department B");
-        session.saveOrUpdate(existingEmployee);
+        Employee emp2 = new Employee();
+        emp2.setName("Jane Smith");
+        emp2.setDepartment("Finance");
+        emp2.setActive(false);
+        session.save(emp2);
 
         transaction.commit();
         session.close();
 
-        // Open a new session for load and refresh
+        // Open a new session to apply filter and query
         session = sessionFactory.openSession();
-        transaction = session.beginTransaction();
+        session.enableFilter("activeFilter").setParameter("isActive", true);
+        
+        // Query to get all active employees
+        List<Employee> activeEmployees = session.createQuery("from Employee", Employee.class).list();
+        System.out.println("Active Employees:");
+        for (Employee emp : activeEmployees) {
+            System.out.println(emp.getName());
+        }
 
-        // Load existing employee
-        Employee employeeToLoad = session.load(Employee.class, newEmployee.getId());
-        System.out.println("Loaded Employee: " + employeeToLoad.getName());
+        session.disableFilter("activeFilter");
 
-        // Refresh existing employee
-        session.refresh(employeeToLoad);
-        System.out.println("Refreshed Employee: " + employeeToLoad.getName());
+        // Query to get all employees without filter
+        List<Employee> allEmployees = session.createQuery("from Employee", Employee.class).list();
+        System.out.println("All Employees:");
+        for (Employee emp : allEmployees) {
+            System.out.println(emp.getName());
+        }
 
-        transaction.commit();
         session.close();
-
-        // Open a new session for update and delete
-        session = sessionFactory.openSession();
-        transaction = session.beginTransaction();
-
-        // Update existing employee
-        Employee employeeToUpdate = session.get(Employee.class, newEmployee.getId());
-        employeeToUpdate.setName("Updated Employee 1");
-        session.saveOrUpdate(employeeToUpdate);
-
-        // Delete existing employee
-        Employee employeeToDelete = session.get(Employee.class, existingEmployee.getId());
-        session.delete(employeeToDelete);
-
-        transaction.commit();
-        session.close();
-
         sessionFactory.close();
     }
 }
