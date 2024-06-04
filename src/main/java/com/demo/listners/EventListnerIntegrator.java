@@ -22,6 +22,10 @@ public class EventListnerIntegrator implements Integrator {
 	      
 	      eventListenerRegistry.getEventListenerGroup(EventType.REFRESH)
 	                     .appendListener(new RefreshEventListenerImpl());
+	      eventListenerRegistry.getEventListenerGroup(EventType.PRE_INSERT)
+	                   .appendListener(new PreInsertEventListenerImpl());
+	      eventListenerRegistry.getEventListenerGroup(EventType.POST_INSERT)
+	                   .appendListener(new PostInsertEventListenerImpl());
 	   }
 
 	   @Override
